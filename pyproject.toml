@@ -1,0 +1,16 @@
+[project]
+name = "ComfyUI-RandomPromptTokens"
+version = "1.1.0"
+description = "Seeded reusable prompt-token randomization for ComfyUI."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+dependencies = []
+
+[project.urls]
+Repository = "https://github.com/monoescobar/ComfyUI-RandomPromptTokens"
+Issues = "https://github.com/monoescobar/ComfyUI-RandomPromptTokens/issues"
+
+[tool.comfy]
+PublisherId = "monoescobar"
+DisplayName = "Random Prompt Tokens"

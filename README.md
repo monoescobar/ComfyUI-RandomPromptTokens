@@ -2,6 +2,8 @@
 
 A small, independent ComfyUI custom-node package for building prompts from reusable random option lists.
 
+Current package version: `1.1.0`.
+
 ## Node
 
 The package adds one node:
@@ -54,6 +56,10 @@ Each token is selected once per execution. If `^001` appears several times, ever
 - `seed = 0`: choose fresh random values on each execution.
 - Any positive seed: produce repeatable selections for the same text and option lists.
 
+The node explicitly opts out of ComfyUI output caching when the seed is zero.
+This means pressing Queue again really does make a new choice even when no
+visible input changed. Positive seeds retain normal deterministic caching.
+
 The second output is a JSON selection report containing the seed actually used, selected values, token counts, and missing tokens. It is useful for reproducing or debugging a generated prompt.
 
 ## Missing options
@@ -97,6 +103,30 @@ git pull
 ```
 
 No extra Python packages are required. The package is independent of `ComfyUI-Ideogram4-CinematicJSON` and `ComfyUI-Pixaroma-260117`.
+
+## Node notes
+
+- Supported placeholders are `^001` through `^020`.
+- A token may appear more than once; one value is chosen and reused everywhere.
+- Empty lines in option fields are ignored.
+- A referenced empty or unavailable field becomes `!MISSING:^NNN!` instead of
+  silently disappearing.
+- The node never edits source files and never performs network requests.
+- `selection_report` is intended for metadata, debugging, and exact reruns.
+
+See [docs/NODE_REFERENCE.md](docs/NODE_REFERENCE.md) for the complete input,
+output, caching, and compatibility contract.
+
+## Development and verification
+
+Run the dependency-free test suite from the repository root:
+
+```powershell
+python -m unittest discover -s tests -v
+```
+
+GitHub Actions runs the same suite and compiles the Python package on every
+push and pull request.
 
 ## Typical wiring
 
