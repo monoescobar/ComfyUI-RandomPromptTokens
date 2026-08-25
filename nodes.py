@@ -24,6 +24,12 @@ class RandomPromptTokens:
     """Replace ^001-style tokens with seeded random multiline options."""
 
     CATEGORY = "🎬 Escobarte/Text & Prompt"
+    DESCRIPTION = (
+        "Build one prompt from reusable option lists. Write ^001 through ^020 "
+        "in the main text, then place one possible replacement per line in the "
+        "matching options field. Repeated tokens reuse the same selection. "
+        "Seed 0 produces a fresh result; a positive seed is reproducible."
+    )
     SEARCH_ALIASES = [
         "RandomPromptTokens",
         "Random Prompt",
@@ -34,6 +40,10 @@ class RandomPromptTokens:
     FUNCTION = "randomize"
     RETURN_TYPES = ("STRING", "STRING")
     RETURN_NAMES = ("resolved_text", "selection_report")
+    OUTPUT_TOOLTIPS = (
+        "Main text after every referenced token has been resolved.",
+        "JSON audit record containing the effective seed, selections, counts, and missing tokens.",
+    )
 
     @classmethod
     def INPUT_TYPES(cls):
@@ -45,6 +55,7 @@ class RandomPromptTokens:
                     "multiline": True,
                     "lines": MAIN_TEXT_LINES,
                     "dynamicPrompts": False,
+                    "tooltip": "Main prompt or text. Reference option lists with tokens such as ^001, ^002, and ^003.",
                 },
             ),
             "seed": (
@@ -54,6 +65,7 @@ class RandomPromptTokens:
                     "min": 0,
                     "max": 2147483647,
                     "step": 1,
+                    "tooltip": "0 chooses fresh values on every queued execution. Any positive value makes the selection reproducible.",
                 },
             ),
         }
@@ -66,9 +78,15 @@ class RandomPromptTokens:
                     "lines": OPTION_LINES,
                     "placeholder": "One option per line",
                     "dynamicPrompts": False,
+                    "tooltip": f"Choices for ^{number:03d}. Put one complete option on each non-empty line.",
                 },
             )
         return {"required": required}
+
+    @classmethod
+    def IS_CHANGED(cls, text, seed, **kwargs):
+        """Prevent ComfyUI caching from freezing the documented seed=0 mode."""
+        return float("nan") if int(seed) == 0 else int(seed)
 
     def randomize(self, text: str, seed: int, **kwargs):
         source = str(text or "")
